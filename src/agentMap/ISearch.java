@@ -1,5 +1,6 @@
 package agentMap;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.util.LinkedList;
 
@@ -11,5 +12,12 @@ import java.util.LinkedList;
  */
 
 public interface ISearch {
-	public LinkedList<Point> getPath(Point currLoc, Point destLoc);
+	/**
+	 * Returns a path from a starting point to another point using a search algorithm
+	 * @param currLoc Position to start from
+	 * @param destLoc Position to end at
+	 * @param map 2d array of tiles representing the map
+	 * @return
+	 */
+	public LinkedList<Point> getPath(Point currLoc, Point destLoc, Tile[][] map);
 }

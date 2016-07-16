@@ -1,4 +1,5 @@
 package agentMap;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -6,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Queue;
 import java.util.Scanner;
 
 /**
@@ -19,6 +21,7 @@ public class InternalMap {
 	private HashMap<Character, Tile> tileTypes; 
 	private HashMap<Character, ArrayList<Tile>> tileCollection;
 	private boolean fullyObservable;
+	private ISearch searchAlgo;
 	
 	/**
 	 * Base constructor which assumes the map is fully observable
@@ -31,15 +34,18 @@ public class InternalMap {
 	 * all rows and columns of the input file have to be filled with some character
 	 * @postcondition an internal map of the input file will be generated and stored 
 	 */
-	public InternalMap(String inputFile, HashMap<Character, Tile> tileTypes, Tile player, int mapHeight, int mapWidth) {
+	public InternalMap(String inputFile, HashMap<Character, Tile> tileTypes, Tile player, Dimension mapDim) {
 		this.tileTypes = tileTypes;
 		this.fullyObservable = true;
-		map = new Tile[mapWidth][mapHeight];
+		map = new Tile[mapDim.width][mapDim.height];
 		// tileCollection stores the location of all the known tiles
 		tileCollection = new HashMap<Character, ArrayList<Tile>>();
 		for (char curr: tileTypes.keySet()) {
 			tileCollection.put(curr, new ArrayList<Tile>());
 		}
+		// By default an A* search algorithm is used for searching
+		searchAlgo = new aStarSearch();
+		// By default the heuristic used for A* is the manhatten distance
 		// Read the file and store each tile in the 2d array 
 		Scanner sc = null;
 		try {
@@ -111,6 +117,29 @@ public class InternalMap {
 		}
 	}
 	
+	/**
+	 * Gets a path from one point to another point using a search algorithm 
+	 * @param startLoc Starting point
+	 * @param destLoc Destination point
+	 * @return Queue of points representing the path between the two points
+	 */
+	public Queue<Point> getPath(Point startLoc, Point destLoc) {
+		Queue<Point> path = searchAlgo.getPath(startLoc, destLoc, map);
+		return path;
+	}
+	
+	public ArrayList<Point> getLocOfTile(char tileChar) {
+		ArrayList<Point> points = new ArrayList<Point>();
+		ArrayList<Tile> tileList = tileCollection.get(tileChar);
+		Iterator<Tile> tileIt = tileList.iterator();
+		while (tileIt.hasNext()) {
+			Tile currTile = tileIt.next();
+			Point currPos = currTile.getTilePos();
+			points.add(new Point (currPos.x, currPos.y));
+		}
+		return points;
+	}
+	
 	public static void main(String args[]) {
 		Scanner sc = null;
 		String inputFile = "maps/map1.txt";
@@ -154,13 +183,22 @@ public class InternalMap {
 		tileTypes.put('.', grass);
 		tileTypes.put('g', gold);
 		tileTypes.put('o', player);
+		Dimension mapDim = new Dimension(mapHeight, mapWidth);
 		// Create an internal map using dimensions and blueprint tiles  
-		InternalMap iMap = new InternalMap(inputFile, tileTypes, player, mapHeight, mapWidth);
+		InternalMap iMap = new InternalMap(inputFile, tileTypes, player, mapDim);
 		// TODO: Make JUnit tests
 		System.out.printf("(Debug) Internal map created successfully\n");
 		iMap.displayMap();
 		System.out.printf("(Debug) Internal map displayed successfully\n");
 		iMap.displayTileCount();
 		System.out.printf("(Debug) Tile count displayed successfully\n");
+		ArrayList<Point> playerLoc = iMap.getLocOfTile('o');
+		ArrayList<Point> goldLoc = iMap.getLocOfTile('g');
+		Queue<Point> path = iMap.getPath(playerLoc.get(0), goldLoc.get(0));
+		while (path.size() > 0) {
+			Point nextPoint = path.poll();
+			System.out.println(nextPoint.toString());
+		}
+		System.out.printf("(Debug) Path from the player to the gold displayed sucessfully\n");
 	}
 }
