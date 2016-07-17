@@ -34,17 +34,19 @@ public class InternalMap {
 	 * all rows and columns of the input file have to be filled with some character
 	 * @postcondition an internal map of the input file will be generated and stored 
 	 */
-	public InternalMap(String inputFile, HashMap<Character, Tile> tileTypes, Tile player, Dimension mapDim) {
+	public InternalMap(String inputFile, HashMap<Character, Tile> tileTypes, Tile player, 
+			Dimension mapDim, boolean eightDirections) {
 		this.tileTypes = tileTypes;
 		this.fullyObservable = true;
 		map = new Tile[mapDim.width][mapDim.height];
+		IHeuristic heuristic = (eightDirections == true) ? new ChebyshevDist() : new ManhattanDist();
 		// tileCollection stores the location of all the known tiles
 		tileCollection = new HashMap<Character, ArrayList<Tile>>();
 		for (char curr: tileTypes.keySet()) {
 			tileCollection.put(curr, new ArrayList<Tile>());
 		}
 		// By default an A* search algorithm is used for searching
-		searchAlgo = new aStarSearch();
+		searchAlgo = new aStarSearch(heuristic, eightDirections);
 		// By default the heuristic used for A* is the manhatten distance
 		// Read the file and store each tile in the 2d array 
 		Scanner sc = null;
@@ -184,8 +186,9 @@ public class InternalMap {
 		tileTypes.put('g', gold);
 		tileTypes.put('o', player);
 		Dimension mapDim = new Dimension(mapHeight, mapWidth);
+		boolean eightDirections = false;
 		// Create an internal map using dimensions and blueprint tiles  
-		InternalMap iMap = new InternalMap(inputFile, tileTypes, player, mapDim);
+		InternalMap iMap = new InternalMap(inputFile, tileTypes, player, mapDim, eightDirections);
 		// TODO: Make JUnit tests
 		System.out.printf("(Debug) Internal map created successfully\n");
 		iMap.displayMap();

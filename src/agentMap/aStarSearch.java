@@ -7,10 +7,12 @@ import java.util.PriorityQueue;
 
 public class aStarSearch implements ISearch {
 	private IHeuristic heuristic;
+	private boolean eightDirections;
 	HashMap<Point, Boolean> visited;
 	
-	public aStarSearch() {
-		heuristic = new ManhattanDist();
+	public aStarSearch(IHeuristic heuristic, boolean eightDirections) {
+		this.heuristic = heuristic;
+		this.eightDirections = eightDirections;
 		visited = new HashMap<Point, Boolean>();
 	}
 	
@@ -39,19 +41,38 @@ public class aStarSearch implements ISearch {
 			// Continue the search
 			// Create a state for the tile to the left
 			if (currStatePos.x - 1 >= 0) {
-				addNewState(pq, currState, destLoc, "West", map);
+				addNewState(pq, currState, destLoc, Direction.W, map);
 			}
 			// Create a state for the tile to the Right
 			if (currStatePos.x + 1 < mapWidth) {
-				addNewState(pq, currState, destLoc, "East", map);
+				addNewState(pq, currState, destLoc, Direction.E, map);
 			}
 			// Create a state for the tile above
 			if (currStatePos.y - 1 >= 0) {
-				addNewState(pq, currState, destLoc, "North", map);
+				addNewState(pq, currState, destLoc, Direction.N, map);
 			}
 			// Create a state for the tile below
 			if (currStatePos.y + 1 < mapHeight) {
-				addNewState(pq, currState, destLoc, "South", map);
+				addNewState(pq, currState, destLoc, Direction.S, map);
+			}
+			// Additional states if the agent is able to move diagonally
+			if (eightDirections) {
+				// Create a state for the tile north west
+				if (currStatePos.x - 1 >= 0 && currStatePos.y - 1 >= 0) {
+					addNewState(pq, currState, destLoc, Direction.NW, map);
+				}
+				// Create a state for the tile north east
+				if (currStatePos.x + 1 < mapWidth && currStatePos.y - 1 >= 0) {
+					addNewState(pq, currState, destLoc, Direction.NE, map);
+				}
+				// Create a state for the tile north west
+				if (currStatePos.x - 1 >= 0 && currStatePos.y + 1 < mapHeight) {
+					addNewState(pq, currState, destLoc, Direction.SW, map);
+				}
+				// Create a state for the tile north west
+				if (currStatePos.x + 1 < mapWidth && currStatePos.y + 1 < mapHeight) {
+					addNewState(pq, currState, destLoc, Direction.SE, map);
+				}
 			}
 			visited.put(currStatePos, true);
 		}
@@ -69,23 +90,35 @@ public class aStarSearch implements ISearch {
 	 * @param heuristic Heuristic function
 	 */
 	public void addNewState(PriorityQueue<State> pq, State currState, Point destLoc, 
-			String direction, Tile[][] map) {
+			Direction direction, Tile[][] map) {
 		Point nextPoint = null;
 		Point currStatePos = currState.getCurrLoc();
 		/* Determine the point of the new state using the current state's position
 		and the direction given*/ 
 		switch(direction) {
-		case "West":
+		case W:
 			nextPoint = new Point(currStatePos.x - 1, currStatePos.y);
 			break;
-		case "East":
+		case E:
 			nextPoint = new Point(currStatePos.x + 1, currStatePos.y);
 			break;
-		case "North":
+		case N:
 			nextPoint = new Point(currStatePos.x, currStatePos.y - 1);
 			break;
-		case "South":
+		case S:
 			nextPoint = new Point(currStatePos.x, currStatePos.y + 1);
+			break;
+		case NW:
+			nextPoint = new Point(currStatePos.x - 1, currStatePos.y - 1);
+			break;
+		case NE:
+			nextPoint = new Point(currStatePos.x + 1, currStatePos.y - 1);
+			break;
+		case SW:
+			nextPoint = new Point(currStatePos.x - 1, currStatePos.y + 1);
+			break;
+		case SE:
+			nextPoint = new Point(currStatePos.x + 1, currStatePos.y + 1);
 			break;
 		}
 		// Check if the point has already been visited previously
