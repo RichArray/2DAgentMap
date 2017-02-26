@@ -1,4 +1,4 @@
-package agentMap;
+package agentMap.Core;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
@@ -9,6 +9,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.Scanner;
+
+import agentMap.Heuristics.ChebyshevDist;
+import agentMap.Heuristics.ManhattanDist;
+import agentMap.Modules.aStarSearch;
 
 /**
  * @author Richard Luong
@@ -119,14 +123,18 @@ public class InternalMap {
 		}
 	}
 	
+	public void updateMap(Tile tile, Point point) {
+		map[point.y][point.x] = tile;
+	}
+	
 	/**
 	 * Gets a path from one point to another point using a search algorithm 
 	 * @param startLoc Starting point
 	 * @param destLoc Destination point
 	 * @return Queue of points representing the path between the two points
 	 */
-	public Queue<Point> getPath(Point startLoc, Point destLoc) {
-		Queue<Point> path = searchAlgo.getPath(startLoc, destLoc, map);
+	public Queue<Pair<Direction, Point>> getPath(Point startLoc, Point destLoc) {
+		Queue<Pair<Direction, Point>> path = searchAlgo.getPath(startLoc, destLoc, map);
 		return path;
 	}
 	
@@ -176,15 +184,19 @@ public class InternalMap {
 		System.out.printf("(Debug) Map: %s read successfully\n", inputFile);
 		// TODO: Allow for a configuration file to load in the tile types on the map
 		// Hardcode all the tile types for now
-		Tile wall = new Tile('-', null, false, -99);
-		Tile grass = new Tile('.', null, true, 1);
+		Tile wall1 = new Tile('-', null, false, -99);
+		Tile wall2 = new Tile('|', null, false, -99);
+		Tile wall3 = new Tile('+', null, false, -99);
+		Tile empty = new Tile(' ', null, true, 1);
 		Tile gold = new Tile('g', null, true, 1);
 		Tile player = new Tile('o', null, true, 1);
 		HashMap<Character, Tile> tileTypes = new HashMap<Character, Tile>();
-		tileTypes.put('-', wall);
-		tileTypes.put('.', grass);
+		tileTypes.put('-', wall1);
+		tileTypes.put('|', wall2);
+		tileTypes.put('+', wall3);
 		tileTypes.put('g', gold);
 		tileTypes.put('o', player);
+		tileTypes.put(' ', empty);
 		Dimension mapDim = new Dimension(mapHeight, mapWidth);
 		boolean eightDirections = false;
 		// Create an internal map using dimensions and blueprint tiles  
@@ -197,11 +209,16 @@ public class InternalMap {
 		System.out.printf("(Debug) Tile count displayed successfully\n");
 		ArrayList<Point> playerLoc = iMap.getLocOfTile('o');
 		ArrayList<Point> goldLoc = iMap.getLocOfTile('g');
-		Queue<Point> path = iMap.getPath(playerLoc.get(0), goldLoc.get(0));
+		Queue<Pair<Direction, Point>> path = iMap.getPath(playerLoc.get(0), goldLoc.get(0));
+		Tile marker = new Tile('X', null, false, -99);
 		while (path.size() > 0) {
-			Point nextPoint = path.poll();
-			System.out.println(nextPoint.toString());
+			Pair<Direction, Point> nextPair = path.poll();
+			Direction nextDirection = nextPair.first;
+			Point nextPoint = nextPair.second;
+			iMap.updateMap(marker, nextPoint);
+			System.out.println("Direction: " + nextDirection.toString() + ", " + nextPoint.toString());
 		}
+		iMap.displayMap();
 		System.out.printf("(Debug) Path from the player to the gold displayed sucessfully\n");
 	}
 }

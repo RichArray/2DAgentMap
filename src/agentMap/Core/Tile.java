@@ -1,4 +1,4 @@
-package agentMap;
+package agentMap.Core;
 import java.awt.Point;
 
 /**

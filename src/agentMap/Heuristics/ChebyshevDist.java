@@ -1,6 +1,8 @@
-package agentMap;
+package agentMap.Heuristics;
 
 import java.awt.Point;
+
+import agentMap.Core.IHeuristic;
 
 /**
  * @author Richard Luong

@@ -1,9 +1,16 @@
-package agentMap;
+package agentMap.Modules;
 
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+
+import agentMap.Core.Direction;
+import agentMap.Core.IHeuristic;
+import agentMap.Core.ISearch;
+import agentMap.Core.Pair;
+import agentMap.Core.State;
+import agentMap.Core.Tile;
 
 public class aStarSearch implements ISearch {
 	private IHeuristic heuristic;
@@ -17,13 +24,13 @@ public class aStarSearch implements ISearch {
 	}
 	
 	@Override
-	public LinkedList<Point> getPath(Point currLoc, Point destLoc, Tile map[][]) {
+	public LinkedList<Pair<Direction, Point>> getPath(Point currLoc, Point destLoc, Tile map[][]) {
 		// Take note of the map's dimensions
 		int mapHeight = map.length;
 		int mapWidth = map[0].length;
 		// Initialise the first state in the priority queue
 		int hCost = heuristic.calcHeuristic(currLoc, destLoc);
-		State startState = new State(null, currLoc, 0, hCost);
+		State startState = new State(null, currLoc, 0, hCost, Direction.NONE);
 		PriorityQueue<State> pq = new PriorityQueue<State>();
 		pq.add(startState);
 		// Start the search
@@ -130,7 +137,7 @@ public class aStarSearch implements ISearch {
 		// Create the new state and add it to the priority queue
 		int hCost = heuristic.calcHeuristic(nextPoint, destLoc);
 		int gCost = currState.getGCost() + map[nextPoint.y][nextPoint.x].getPassCost();
-		State newState = new State(currState, nextPoint, gCost, hCost);
+		State newState = new State(currState, nextPoint, gCost, hCost, direction);
 		pq.add(newState);
 	}
 }

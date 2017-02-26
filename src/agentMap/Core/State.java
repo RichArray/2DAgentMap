@@ -1,4 +1,4 @@
-package agentMap;
+package agentMap.Core;
 
 import java.awt.Point;
 import java.util.LinkedList;
@@ -14,6 +14,7 @@ public class State implements Comparable<State> {
 	private Point currLoc;
 	private int gCost;
 	private int hCost;
+	private Direction currDir;
 
 	/**
 	 * Constructor for state
@@ -22,11 +23,12 @@ public class State implements Comparable<State> {
 	 * @param gCost The cost of the path the state has been on
 	 * @param hCost The estimated cost to the destination
 	 */
-	public State(State prevState, Point currLoc, int gCost, int hCost) {
+	public State(State prevState, Point currLoc, int gCost, int hCost, Direction direction) {
 		this.prevState = prevState;
 		this.currLoc = currLoc;
 		this.gCost = gCost;
 		this.hCost = hCost;
+		this.currDir = direction;
 	}
 	
 	/**
@@ -34,15 +36,15 @@ public class State implements Comparable<State> {
 	 * to the destination point.
 	 * @return List of points representing the path from one point to another
 	 */
-	public LinkedList<Point> getPath() {
+	public LinkedList<Pair<Direction, Point>> getPath() {
 		// Stopping condition for recursion
-		LinkedList<Point> currPath = null;
+		LinkedList<Pair<Direction, Point>> currPath = null;
 		if (prevState == null) {
-			currPath = new LinkedList<Point>();
+			currPath = new LinkedList<Pair<Direction, Point>>();
 		} else {
 			currPath = prevState.getPath();
 		}
-		currPath.add(currLoc);
+		currPath.add(new Pair<Direction, Point>(currDir, currLoc));
 		return currPath;
 	}
 	

@@ -1,4 +1,4 @@
-package agentMap;
+package agentMap.Core;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -19,5 +19,5 @@ public interface ISearch {
 	 * @param map 2d array of tiles representing the map
 	 * @return
 	 */
-	public LinkedList<Point> getPath(Point currLoc, Point destLoc, Tile[][] map);
+	public LinkedList<Pair<Direction, Point>> getPath(Point currLoc, Point destLoc, Tile[][] map);
 }
